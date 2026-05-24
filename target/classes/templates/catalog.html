@@ -149,7 +149,6 @@
             font-size: 0.9rem;
         }
 
-        /* Общий стиль для всех полей ввода в фильтрах */
         .filters-sidebar input,
         .filters-sidebar select {
             width: 100%;
@@ -267,7 +266,6 @@
             background: #cbd5e0;
         }
 
-        /* Products Area */
         .products-area {
             background: white;
             border-radius: 10px;
@@ -445,7 +443,6 @@
             color: #dc3545;
         }
 
-        /* Modal Styles */
         .modal {
             display: none;
             position: fixed;
@@ -678,7 +675,7 @@
                     <button class="nav-btn register" onclick="openRegisterModal()">Регистрация</button>
                 </div>
                 <div class="user-info" id="authButtons" style="display: none;">
-                    <button id="panelButton" class="nav-btn" style="background:#667eea; display:none;" onclick="goToPanel()">👑 Панель</button>
+                    <button id="panelButton" class="nav-btn" style="display:none;" onclick="goToPanel()"></button>
                     <span class="user-name" id="userName">User</span>
                     <button class="nav-btn logout" onclick="logout()">Выход</button>
                 </div>
@@ -1023,7 +1020,19 @@
                 type: 'GET',
                 success: function(response) {
                     if (response.authenticated && response.role !== 'CLIENT') {
-                        $('#panelButton').show();
+                        var buttonText = '';
+                        var buttonColor = '';
+                        if (response.role === 'CONSULTANT') {
+                            buttonText = '📋 Панель консультанта';
+                            buttonColor = '#3498db';
+                        } else if (response.role === 'ADMIN') {
+                            buttonText = '🛠️ Панель администратора';
+                            buttonColor = '#e74c3c';
+                        } else if (response.role === 'SUPER_ADMIN') {
+                            buttonText = '👑 Панель суперадминистратора';
+                            buttonColor = '#9b59b6';
+                        }
+                        $('#panelButton').text(buttonText).css('background', buttonColor).show();
                     } else {
                         $('#panelButton').hide();
                     }
