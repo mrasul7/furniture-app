@@ -5,6 +5,7 @@ import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 @Data
 @NoArgsConstructor
@@ -36,6 +37,7 @@ public class Request {
     
     @PrePersist
     protected void onCreate() {
-        requestDate = LocalDateTime.now();
+        // Это самое главное - сохраняем с московским временем
+        requestDate = LocalDateTime.now(ZoneId.of("Europe/Moscow"));
     }
 }

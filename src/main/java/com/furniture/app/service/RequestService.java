@@ -57,4 +57,10 @@ public class RequestService {
             requestRepository.deleteAll(userRequests);
         }
     }
+    
+    public List<Request> getRequestsByUserId(Long userId) {
+        return requestRepository.findAll().stream()
+            .filter(r -> r.getUser() != null && r.getUser().getId().equals(userId))
+            .collect(Collectors.toList());
+    }
 }

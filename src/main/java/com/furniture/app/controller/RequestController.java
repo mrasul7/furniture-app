@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -64,5 +65,15 @@ public class RequestController {
     @ResponseBody
     public List<Request> getAllRequests() {
         return requestService.getAllRequests();
+    }
+    
+    @GetMapping("/user")
+    @ResponseBody
+    public List<Request> getUserRequests(HttpSession session) {
+        User user = (User) session.getAttribute("user");
+        if (user == null) {
+            return new ArrayList<>();
+        }
+        return requestService.getRequestsByUserId(user.getId());
     }
 }

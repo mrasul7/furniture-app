@@ -15,6 +15,7 @@ com/furniture/app/FurnitureApplication.class
 com/furniture/app/service/CategoryService.class
 com/furniture/app/repository/RequestRepository.class
 com/furniture/app/controller/CatalogController.class
+com/furniture/app/controller/ProfileController.class
 com/furniture/app/dto/RequestDto.class
 com/furniture/app/model/Role.class
 com/furniture/app/repository/UserRepository.class

@@ -94,6 +94,11 @@
         .user-name {
             color: #333;
             font-weight: 500;
+            cursor: pointer;
+        }
+
+        .user-name:hover {
+            text-decoration: underline;
         }
 
         .main-container {
@@ -105,7 +110,6 @@
             gap: 2rem;
         }
 
-        /* Filters Sidebar */
         .filters-sidebar {
             background: white;
             padding: 1.5rem;
@@ -676,7 +680,7 @@
                 </div>
                 <div class="user-info" id="authButtons" style="display: none;">
                     <button id="panelButton" class="nav-btn" style="display:none;" onclick="goToPanel()"></button>
-                    <span class="user-name" id="userName">User</span>
+                    <span class="user-name" id="userName" onclick="goToProfile()">User</span>
                     <button class="nav-btn logout" onclick="logout()">Выход</button>
                 </div>
             </div>
@@ -922,11 +926,9 @@
         let currentView = 'grid';
         let allProducts = [];
 
-        // ========== ФОРМАТИРОВАНИЕ ТЕЛЕФОНА ==========
         function formatPhoneNumber(input) {
             var value = input.value.replace(/\D/g, '');
             if (value.length > 11) value = value.slice(0, 11);
-            
             var formatted = '';
             if (value.length > 0) {
                 formatted = '+7';
@@ -963,22 +965,17 @@
             setTimeout(function() { toast.remove(); }, 3000);
         }
 
-        // ========== ИНИЦИАЛИЗАЦИЯ ==========
         $(document).ready(function() {
             checkAuthStatus();
             loadCategories();
             loadManufacturers();
             loadProducts();
             initColorFilters();
-            
-            $('#regPhone, #requestPhone').on('input', function() {
-                formatPhoneNumber(this);
-            });
+            $('#regPhone, #requestPhone').on('input', function() { formatPhoneNumber(this); });
         });
 
-        function goToHome() {
-            window.location.href = '/';
-        }
+        function goToHome() { window.location.href = '/'; }
+        function goToProfile() { window.location.href = '/profile'; }
 
         function goToPanel() {
             $.ajax({
@@ -1029,7 +1026,7 @@
                             buttonText = '🛠️ Панель администратора';
                             buttonColor = '#e74c3c';
                         } else if (response.role === 'SUPER_ADMIN') {
-                            buttonText = '👑 Панель суперадминистратора';
+                            buttonText = '👑 Панель суперадмина';
                             buttonColor = '#9b59b6';
                         }
                         $('#panelButton').text(buttonText).css('background', buttonColor).show();
@@ -1051,7 +1048,6 @@
             });
         }
 
-        // ========== МОДАЛЬНЫЕ ОКНА ==========
         function openLoginModal() { $('#loginModal').fadeIn(200); }
         function closeLoginModal() { $('#loginModal').fadeOut(200); $('#loginForm')[0].reset(); }
         function openRegisterModal() { $('#registerModal').fadeIn(200); }
@@ -1081,13 +1077,11 @@
 
         $('#registerForm').on('submit', function(e) {
             e.preventDefault();
-            
             var phoneRaw = $('#regPhone').val();
             if (!validatePhone(phoneRaw)) {
-                showToast('Телефон должен содержать 11 цифр (например: +7 XXX XXX-XX-XX)', 'error');
+                showToast('Телефон должен содержать 11 цифр', 'error');
                 return;
             }
-            
             if ($('#regPassword').val() !== $('#regConfirmPassword').val()) {
                 showToast('Пароли не совпадают!', 'error');
                 return;
@@ -1096,9 +1090,7 @@
                 showToast('Пароль должен быть не менее 4 символов!', 'error');
                 return;
             }
-            
             var normalizedPhone = normalizePhone(phoneRaw);
-            
             $.ajax({
                 url: '/auth/register',
                 type: 'POST',
@@ -1125,7 +1117,6 @@
             openLoginModal();
         });
 
-        // ========== ЗАГРУЗКА ДАННЫХ ==========
         function loadCategories() {
             $.ajax({
                 url: '/api/categories',
@@ -1161,13 +1152,10 @@
                 color: $('#selectedColor').val(),
                 inStockOnly: $('#inStockOnly').is(':checked')
             };
-            
             let materials = [];
             $('.material-checkbox:checked').each(function() { materials.push($(this).val()); });
             if (materials.length > 0) params.materials = materials.join(',');
-            
             $('#productsGrid').html('<div class="no-products">Загрузка товаров...</div>');
-            
             $.ajax({
                 url: '/api/products/filter',
                 type: 'GET',
@@ -1186,7 +1174,6 @@
         function applySorting() {
             let sortBy = $('#sortBy').val();
             let sorted = [...allProducts];
-            
             switch(sortBy) {
                 case 'name_asc': sorted.sort((a, b) => (a.name || '').localeCompare(b.name || '')); break;
                 case 'name_desc': sorted.sort((a, b) => (b.name || '').localeCompare(a.name || '')); break;
@@ -1194,7 +1181,6 @@
                 case 'price_desc': sorted.sort((a, b) => (b.price || 0) - (a.price || 0)); break;
                 case 'stock_desc': sorted.sort((a, b) => (b.quantityInStock || 0) - (a.quantityInStock || 0)); break;
             }
-            
             displayProducts(sorted);
             $('#resultsCount').text(`Найдено товаров: ${sorted.length}`);
         }
@@ -1204,23 +1190,19 @@
                 $('#productsGrid').html('<div class="no-products">Товары не найдены</div>');
                 return;
             }
-            
             let containerClass = currentView === 'grid' ? 'products-grid' : 'products-list';
             let html = '';
-            
             products.forEach(p => {
                 let stockClass = '';
                 let stockText = '';
                 if (p.quantityInStock > 10) { stockClass = 'stock-available'; stockText = 'В наличии'; }
                 else if (p.quantityInStock > 0) { stockClass = 'stock-low'; stockText = `Осталось ${p.quantityInStock} шт.`; }
                 else { stockClass = 'stock-out'; stockText = 'Нет в наличии'; }
-                
                 let imageUrl = p.imageUrl || 'https://via.placeholder.com/300x200?text=Нет+фото';
                 let productType = p.type || 'Стандарт';
                 let productColor = p.color || 'Разный';
                 let manufacturer = p.manufacturer || 'Производитель не указан';
                 let shortName = p.name.length > 50 ? p.name.substring(0, 47) + '...' : p.name;
-                
                 if (currentView === 'grid') {
                     html += `<div class="product-card" onclick="showProduct(${p.id})">
                         <img src="${imageUrl}" class="product-image" onerror="this.src='https://via.placeholder.com/300x200?text=Нет+фото'">
@@ -1245,7 +1227,6 @@
                     </div>`;
                 }
             });
-            
             $('#productsGrid').removeClass('products-grid products-list').addClass(containerClass);
             $('#productsGrid').html(html);
         }
@@ -1296,7 +1277,6 @@
         function showProduct(id) {
             $('#productModal').fadeIn(200);
             $('#productDetail').html('<div style="text-align:center; padding:20px;">Загрузка...</div>');
-            
             $.ajax({
                 url: '/api/products/' + id,
                 type: 'GET',
@@ -1305,7 +1285,6 @@
                     let stockText = p.quantityInStock > 0 ? `<span style="color:#48bb78;">✅ В наличии: ${p.quantityInStock} шт.</span>` : `<span style="color:#f56565;">❌ Нет в наличии</span>`;
                     let imageUrl = p.imageUrl || 'https://via.placeholder.com/600x400?text=Нет+фото';
                     let categoryName = p.category ? p.category.name : 'Без категории';
-                    
                     let html = `<img src="${imageUrl}" class="product-detail-image" onerror="this.src='https://via.placeholder.com/600x400?text=Нет+фото'">
                         <h2 class="product-detail-name">${escapeHtml(p.name)}</h2>
                         <div class="product-detail-price">${Number(p.price).toLocaleString()} ₽</div>
@@ -1339,7 +1318,6 @@
                 openLoginModal();
                 return;
             }
-            
             $.ajax({
                 url: '/api/user/profile',
                 type: 'GET',
@@ -1358,14 +1336,12 @@
 
         $('#requestForm').on('submit', function(e) {
             e.preventDefault();
-            
             var phoneRaw = $('#requestPhone').val();
             if (!validatePhone(phoneRaw)) {
                 showToast('Телефон должен содержать 11 цифр', 'error');
                 return;
             }
             var normalizedPhone = normalizePhone(phoneRaw);
-            
             $.ajax({
                 url: '/api/requests/create',
                 type: 'POST',

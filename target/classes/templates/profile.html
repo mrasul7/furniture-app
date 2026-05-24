@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мой профиль - Мебельный склад</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 25px;
+        }
+
+        .btn-home {
+            background: white;
+            color: #667eea;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .btn-home:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        /* Profile Card */
+        .profile-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .profile-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .profile-info {
+            flex: 1;
+        }
+
+        .profile-info h2 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+
+        .profile-info-grid {
+            display: grid;
+            grid-template-columns: 100px 1fr;
+            gap: 12px 15px;
+            align-items: baseline;
+        }
+
+        .profile-info-grid .label {
+            color: #333;
+            font-weight: 600;
+        }
+
+        .profile-info-grid .value {
+            color: #666;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .badge-client { background: #2ecc71; color: white; }
+        .badge-consultant { background: #3498db; color: white; }
+        .badge-admin { background: #e74c3c; color: white; }
+        .badge-super { background: #9b59b6; color: white; }
+
+        .btn-edit {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            height: 40px;
+            margin-top: 30px;
+        }
+
+        .btn-edit:hover {
+            background: #5a67d8;
+            transform: translateY(-2px);
+        }
+
+        /* Edit Form */
+        .edit-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .edit-form-row {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .edit-form-row .form-group {
+            flex: 1;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #555;
+        }
+
+        .form-group input {
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-group input:disabled {
+            background: #f5f5f5;
+            cursor: not-allowed;
+        }
+
+        .edit-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .save-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .save-btn:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+
+        .cancel-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .cancel-btn:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            background: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        .tab-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .tab-btn:hover:not(.active) {
+            background: #e2e8f0;
+        }
+
+        /* Tab Content */
+        .tab-content {
+            display: none;
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Filters */
+        .filters-bar {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            align-items: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 12px;
+        }
+
+        .filter-select {
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+            cursor: pointer;
+        }
+
+        .filter-select:hover {
+            border-color: #667eea;
+        }
+
+        .btn-filter {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-filter:hover {
+            background: #5a67d8;
+            transform: translateY(-2px);
+        }
+
+        .btn-reset {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-reset:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+        }
+
+        /* Requests Table */
+        .requests-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .requests-table th, .requests-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        .requests-table th {
+            background: #f8f9fa;
+            color: #333;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .requests-table th:hover {
+            color: #667eea;
+        }
+
+        .status-pending {
+            background: #ffc107;
+            color: #856404;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            display: inline-block;
+        }
+
+        .status-progress {
+            background: #17a2b8;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            display: inline-block;
+        }
+
+        .status-completed {
+            background: #28a745;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            display: inline-block;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        /* Settings */
+        .settings-group {
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .settings-group:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .settings-group h4 {
+            margin-bottom: 15px;
+            color: #333;
+            font-size: 1.1rem;
+        }
+
+        .settings-option {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .settings-option label {
+            color: #555;
+            font-weight: 500;
+        }
+
+        .settings-select {
+            padding: 8px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+        }
+
+        /* Switch Toggle */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 52px;
+            height: 26px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: 0.3s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: #667eea;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 450px;
+            width: 90%;
+            animation: slideDown 0.3s;
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-content h3 {
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 12px 24px;
+            border-radius: 8px;
+            color: white;
+            z-index: 1002;
+            animation: slideInRight 0.3s ease-out;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .toast.success { background: #48bb78; }
+        .toast.error { background: #f56565; }
+
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @media (max-width: 768px) {
+            .container { padding: 15px; }
+            .profile-header { flex-direction: column; align-items: center; text-align: center; }
+            .profile-info-grid { grid-template-columns: 1fr; gap: 5px; }
+            .profile-info-grid .label { font-weight: bold; }
+            .edit-form-row { flex-direction: column; }
+            .tabs { justify-content: center; }
+            .requests-table th, .requests-table td { padding: 8px; font-size: 12px; }
+            .filters-bar { flex-direction: column; }
+            .filters-bar > * { width: 100%; }
+            .settings-option { flex-direction: column; gap: 10px; align-items: flex-start; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <button class="btn-home" onclick="goToHome()">🏠 На главную</button>
+        </div>
+
+        <!-- Profile View -->
+        <div class="profile-card" id="profileView">
+            <div class="profile-header">
+                <div class="profile-avatar">👤</div>
+                <div class="profile-info">
+                    <h2 id="userFullName">Иван Иванов</h2>
+                    <div class="profile-info-grid">
+                        <span class="label">📧 Email:</span>
+                        <span class="value" id="userEmail">ivan@example.com</span>
+                        
+                        <span class="label">📞 Телефон:</span>
+                        <span class="value" id="userPhone">+7 (900) 123-45-67</span>
+                        
+                        <span class="label">👑 Роль:</span>
+                        <span class="value"><span id="userRole" class="badge">Клиент</span></span>
+                        
+                        <span class="label">📅 Регистрация:</span>
+                        <span class="value" id="userRegDate">-</span>
+                    </div>
+                </div>
+                <button class="btn-edit" onclick="toggleEditMode()">✏️ Редактировать профиль</button>
+            </div>
+        </div>
+
+        <!-- Edit View -->
+        <div class="profile-card" id="editView" style="display:none;">
+            <h3 style="color:#667eea; margin-bottom:20px;">✏️ Редактирование профиля</h3>
+            <div class="edit-form">
+                <div class="edit-form-row">
+                    <div class="form-group">
+                        <label>ФИО:</label>
+                        <input type="text" id="editFullName">
+                    </div>
+                    <div class="form-group">
+                        <label>Телефон:</label>
+                        <input type="tel" id="editPhone" placeholder="+7 (XXX) XXX-XX-XX">
+                    </div>
+                </div>
+                <div class="edit-form-row">
+                    <div class="form-group">
+                        <label>Email:</label>
+                        <input type="email" id="editEmail" disabled>
+                        <small style="color:#999; margin-top:5px;">Email нельзя изменить</small>
+                    </div>
+                </div>
+                <div class="edit-actions">
+                    <button class="save-btn" onclick="saveProfile()">💾 Сохранить</button>
+                    <button class="cancel-btn" onclick="toggleEditMode()">❌ Отмена</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="requests">📋 Мои заявки</button>
+            <button class="tab-btn" data-tab="settings">⚙️ Настройки</button>
+        </div>
+
+        <!-- My Requests Tab -->
+        <div id="requestsTab" class="tab-content active">
+            <h3 style="color:#667eea; margin-bottom:20px;">📋 История моих заявок</h3>
+            
+            <!-- Filters -->
+            <div class="filters-bar">
+                <select id="statusFilter" class="filter-select">
+                    <option value="all">Все статусы</option>
+                    <option value="PENDING">🟡 Новые</option>
+                    <option value="IN_PROGRESS">🔵 В обработке</option>
+                    <option value="COMPLETED">✅ Завершённые</option>
+                </select>
+                <select id="sortFilter" class="filter-select">
+                    <option value="date_desc">По дате (новые сначала)</option>
+                    <option value="date_asc">По дате (старые сначала)</option>
+                    <option value="status_asc">По статусу</option>
+                </select>
+                <button class="btn-filter" onclick="applyFilters()">🔍 Применить</button>
+                <button class="btn-reset" onclick="resetFilters()">🔄 Сбросить</button>
+            </div>
+
+            <div style="overflow-x: auto;">
+                <table class="requests-table">
+                    <thead>
+                        <tr>
+                            <th onclick="sortBy('id')">ID ⬍</th>
+                            <th onclick="sortBy('date')">Дата ⬍</th>
+                            <th onclick="sortBy('product')">Товар ⬍</th>
+                            <th onclick="sortBy('category')">Категория ⬍</th>
+                            <th onclick="sortBy('price')">Цена ⬍</th>
+                            <th onclick="sortBy('status')">Статус ⬍</th>
+                        </tr>
+                    </thead>
+                    <tbody id="requestsBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Settings Tab -->
+        <div id="settingsTab" class="tab-content">
+            <h3 style="color:#667eea; margin-bottom:20px;">⚙️ Настройки профиля</h3>
+
+            <div class="settings-group">
+                <h4>📊 Отображение</h4>
+                <div class="settings-option">
+                    <label>Вид каталога по умолчанию</label>
+                    <select id="defaultViewSelect" class="settings-select" onchange="saveDefaultView()">
+                        <option value="grid">Сетка</option>
+                        <option value="list">Список</option>
+                    </select>
+                </div>
+                <div class="settings-option">
+                    <label>Количество товаров на странице</label>
+                    <select id="itemsPerPage" class="settings-select" onchange="saveItemsPerPage()">
+                        <option value="12">12 товаров</option>
+                        <option value="24">24 товара</option>
+                        <option value="48">48 товаров</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="settings-group">
+                <h4>🔔 Уведомления</h4>
+                <div class="settings-option">
+                    <label>Email-уведомления о статусе заявок</label>
+                    <label class="switch">
+                        <input type="checkbox" id="emailNotifications" onchange="saveNotifications()">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="settings-group">
+                <h4>🔒 Безопасность</h4>
+                <div class="settings-option">
+                    <label>Сменить пароль</label>
+                    <button class="btn-edit" onclick="openPasswordModal()" style="background:#17a2b8; padding:8px 20px;">🔄 Сменить</button>
+                </div>
+            </div>
+
+            <div class="settings-group">
+                <h4>📊 Предпочтения поиска</h4>
+                <div class="settings-option">
+                    <label>Сохранять историю поиска</label>
+                    <label class="switch">
+                        <input type="checkbox" id="saveSearchHistory" onchange="saveSearchHistory()">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="settings-option">
+                    <label>Показывать похожие товары</label>
+                    <label class="switch">
+                        <input type="checkbox" id="showSimilar" onchange="saveSimilar()" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Change Password Modal -->
+    <div id="passwordModal" class="modal">
+        <div class="modal-content">
+            <h3>🔐 Смена пароля</h3>
+            <div class="form-group" style="margin-bottom:15px;">
+                <label>Старый пароль:</label>
+                <input type="password" id="oldPassword" placeholder="Введите старый пароль">
+            </div>
+            <div class="form-group" style="margin-bottom:15px;">
+                <label>Новый пароль:</label>
+                <input type="password" id="newPassword" placeholder="Минимум 4 символа">
+            </div>
+            <div class="form-group" style="margin-bottom:20px;">
+                <label>Подтверждение пароля:</label>
+                <input type="password" id="confirmNewPassword" placeholder="Повторите пароль">
+            </div>
+            <div class="modal-buttons">
+                <button class="save-btn" onclick="confirmChangePassword()">Сохранить</button>
+                <button class="cancel-btn" onclick="closePasswordModal()">Отмена</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        let currentUser = null;
+        let userRequests = [];
+        let currentSort = { field: 'date', order: 'desc' };
+        let currentStatusFilter = 'all';
+
+        function showToast(message, type) {
+            $('.toast').remove();
+            var toast = $('<div class="toast ' + type + '">' + message + '</div>');
+            $('body').append(toast);
+            setTimeout(function() { toast.remove(); }, 3000);
+        }
+
+        function goToHome() {
+            window.location.href = '/';
+        }
+
+        function loadUserProfile() {
+            $.ajax({
+                url: '/api/user/profile',
+                type: 'GET',
+                success: function(user) {
+                    currentUser = user;
+                    $('#userFullName').text(user.fullName || 'Не указано');
+                    $('#userEmail').text(user.email);
+                    $('#userPhone').text(user.phone || 'Не указан');
+                    $('#userRegDate').text(user.createdAt ? new Date(user.createdAt).toLocaleDateString('ru-RU') : '-');
+
+                    var roleClass = '';
+                    var roleText = '';
+                    if (user.role === 'CLIENT') { roleClass = 'badge-client'; roleText = 'Клиент'; }
+                    else if (user.role === 'CONSULTANT') { roleClass = 'badge-consultant'; roleText = 'Консультант'; }
+                    else if (user.role === 'ADMIN') { roleClass = 'badge-admin'; roleText = 'Администратор'; }
+                    else { roleClass = 'badge-super'; roleText = 'Суперадмин'; }
+
+                    $('#userRole').text(roleText).removeClass().addClass('badge ' + roleClass);
+
+                    $('#editFullName').val(user.fullName);
+                    $('#editPhone').val(user.phone);
+                    $('#editEmail').val(user.email);
+                },
+                error: function() {
+                    showToast('Ошибка загрузки профиля', 'error');
+                }
+            });
+        }
+
+        function loadUserRequests() {
+            $.ajax({
+                url: '/api/requests/user',
+                type: 'GET',
+                success: function(requests) {
+                    userRequests = requests;
+                    applyFilters();
+                },
+                error: function() {
+                    $('#requestsBody').html('<tr><td colspan="6" class="no-data">Ошибка загрузки заявок</td></tr>');
+                }
+            });
+        }
+
+        function applyFilters() {
+            var statusFilter = $('#statusFilter').val();
+            var sortType = $('#sortFilter').val();
+
+            var filtered = userRequests.filter(function(r) {
+                return statusFilter === 'all' || r.status === statusFilter;
+            });
+
+            if (sortType === 'date_desc') {
+                filtered.sort((a, b) => new Date(b.requestDate) - new Date(a.requestDate));
+            } else if (sortType === 'date_asc') {
+                filtered.sort((a, b) => new Date(a.requestDate) - new Date(b.requestDate));
+            } else if (sortType === 'status_asc') {
+                var statusOrder = { 'PENDING': 1, 'IN_PROGRESS': 2, 'COMPLETED': 3 };
+                filtered.sort((a, b) => statusOrder[a.status] - statusOrder[b.status]);
+            }
+
+            renderRequests(filtered);
+        }
+
+        function sortBy(field) {
+            if (currentSort.field === field) {
+                currentSort.order = currentSort.order === 'asc' ? 'desc' : 'asc';
+            } else {
+                currentSort.field = field;
+                currentSort.order = 'asc';
+            }
+
+            var sorted = [...userRequests];
+            
+            if (currentSort.field === 'id') {
+                sorted.sort((a, b) => currentSort.order === 'asc' ? a.id - b.id : b.id - a.id);
+            } else if (currentSort.field === 'date') {
+                sorted.sort((a, b) => currentSort.order === 'asc' ? new Date(a.requestDate) - new Date(b.requestDate) : new Date(b.requestDate) - new Date(a.requestDate));
+            } else if (currentSort.field === 'product') {
+                sorted.sort((a, b) => currentSort.order === 'asc' ? (a.product?.name || '').localeCompare(b.product?.name || '') : (b.product?.name || '').localeCompare(a.product?.name || ''));
+            } else if (currentSort.field === 'category') {
+                sorted.sort((a, b) => currentSort.order === 'asc' ? (a.product?.category?.name || '').localeCompare(b.product?.category?.name || '') : (b.product?.category?.name || '').localeCompare(a.product?.category?.name || ''));
+            } else if (currentSort.field === 'price') {
+                sorted.sort((a, b) => currentSort.order === 'asc' ? (a.product?.price || 0) - (b.product?.price || 0) : (b.product?.price || 0) - (a.product?.price || 0));
+            } else if (currentSort.field === 'status') {
+                var statusOrder = { 'PENDING': 1, 'IN_PROGRESS': 2, 'COMPLETED': 3 };
+                sorted.sort((a, b) => currentSort.order === 'asc' ? statusOrder[a.status] - statusOrder[b.status] : statusOrder[b.status] - statusOrder[a.status]);
+            }
+
+            var statusFilter = $('#statusFilter').val();
+            var filtered = sorted.filter(function(r) {
+                return statusFilter === 'all' || r.status === statusFilter;
+            });
+            renderRequests(filtered);
+        }
+
+        function renderRequests(requests) {
+            var tbody = $('#requestsBody');
+            tbody.empty();
+
+            if (!requests || requests.length === 0) {
+                tbody.html('<tr><td colspan="6" class="no-data">У вас пока нет заявок</td></tr>');
+                return;
+            }
+
+            for (var i = 0; i < requests.length; i++) {
+                var r = requests[i];
+                var statusClass = '';
+                var statusText = '';
+                if (r.status === 'PENDING') { statusClass = 'status-pending'; statusText = '🟡 Новая'; }
+                else if (r.status === 'IN_PROGRESS') { statusClass = 'status-progress'; statusText = '🔵 В обработке'; }
+                else { statusClass = 'status-completed'; statusText = '✅ Завершена'; }
+
+                var row = '<tr>' +
+                    '<td>' + r.id + '</td>' +
+                    '<td>' + new Date(r.requestDate).toLocaleString() + '</td>' +
+                    '<td>' + (r.product ? r.product.name : 'Не указан') + '</td>' +
+                    '<td>' + (r.product && r.product.category ? r.product.category.name : '-') + '</td>' +
+                    '<td>' + (r.product ? Number(r.product.price).toLocaleString() + ' ₽' : '-') + '</td>' +
+                    '<td><span class="' + statusClass + '">' + statusText + '</span></td>' +
+                '</tr>';
+                tbody.append(row);
+            }
+        }
+
+        function resetFilters() {
+            $('#statusFilter').val('all');
+            $('#sortFilter').val('date_desc');
+            applyFilters();
+        }
+
+        function toggleEditMode() {
+            $('#profileView').toggle();
+            $('#editView').toggle();
+        }
+
+        function saveProfile() {
+            var updatedUser = {
+                fullName: $('#editFullName').val(),
+                phone: $('#editPhone').val()
+            };
+
+            $.ajax({
+                url: '/api/user/update',
+                type: 'PUT',
+                contentType: 'application/json',
+                data: JSON.stringify(updatedUser),
+                success: function() {
+                    showToast('Профиль обновлён успешно!', 'success');
+                    toggleEditMode();
+                    loadUserProfile();
+                },
+                error: function() {
+                    showToast('Ошибка обновления профиля', 'error');
+                }
+            });
+        }
+
+        function openPasswordModal() {
+            $('#passwordModal').css('display', 'flex');
+        }
+
+        function closePasswordModal() {
+            $('#passwordModal').hide();
+            $('#oldPassword, #newPassword, #confirmNewPassword').val('');
+        }
+
+        function confirmChangePassword() {
+            var oldPass = $('#oldPassword').val();
+            var newPass = $('#newPassword').val();
+            var confirmPass = $('#confirmNewPassword').val();
+
+            if (!oldPass) {
+                showToast('Введите старый пароль', 'error');
+                return;
+            }
+            if (!newPass || newPass.length < 4) {
+                showToast('Новый пароль должен быть не менее 4 символов', 'error');
+                return;
+            }
+            if (newPass !== confirmPass) {
+                showToast('Пароли не совпадают', 'error');
+                return;
+            }
+
+            $.ajax({
+                url: '/api/user/change-password',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ oldPassword: oldPass, newPassword: newPass }),
+                success: function() {
+                    showToast('Пароль успешно изменён', 'success');
+                    closePasswordModal();
+                },
+                error: function(xhr) {
+                    showToast(xhr.responseText || 'Ошибка смены пароля', 'error');
+                }
+            });
+        }
+
+        // Settings functions
+        function loadSettings() {
+            var defaultView = localStorage.getItem('furniture_defaultView') || 'grid';
+            var itemsPerPage = localStorage.getItem('furniture_itemsPerPage') || '12';
+            var emailNotifications = localStorage.getItem('furniture_emailNotifications') === 'true';
+            var saveSearchHistory = localStorage.getItem('furniture_saveSearchHistory') === 'true';
+            var showSimilar = localStorage.getItem('furniture_showSimilar') !== 'false';
+
+            $('#defaultViewSelect').val(defaultView);
+            $('#itemsPerPage').val(itemsPerPage);
+            $('#emailNotifications').prop('checked', emailNotifications);
+            $('#saveSearchHistory').prop('checked', saveSearchHistory);
+            $('#showSimilar').prop('checked', showSimilar);
+        }
+
+        function saveDefaultView() {
+            var view = $('#defaultViewSelect').val();
+            localStorage.setItem('furniture_defaultView', view);
+            showToast('Настройки сохранены', 'success');
+        }
+
+        function saveItemsPerPage() {
+            var items = $('#itemsPerPage').val();
+            localStorage.setItem('furniture_itemsPerPage', items);
+            showToast('Количество товаров на странице обновлено', 'success');
+        }
+
+        function saveNotifications() {
+            var enabled = $('#emailNotifications').is(':checked');
+            localStorage.setItem('furniture_emailNotifications', enabled);
+            showToast(enabled ? 'Email-уведомления включены' : 'Email-уведомления выключены', 'success');
+        }
+
+        function saveSearchHistory() {
+            var enabled = $('#saveSearchHistory').is(':checked');
+            localStorage.setItem('furniture_saveSearchHistory', enabled);
+            showToast(enabled ? 'История поиска сохраняется' : 'История поиска не сохраняется', 'success');
+        }
+
+        function saveSimilar() {
+            var enabled = $('#showSimilar').is(':checked');
+            localStorage.setItem('furniture_showSimilar', enabled);
+            showToast(enabled ? 'Похожие товары включены' : 'Похожие товары выключены', 'success');
+        }
+
+        // Tabs
+        $('.tab-btn').click(function() {
+            var tabId = $(this).data('tab');
+            $('.tab-btn').removeClass('active');
+            $(this).addClass('active');
+            $('.tab-content').removeClass('active');
+            if (tabId === 'requests') $('#requestsTab').addClass('active');
+            else if (tabId === 'settings') $('#settingsTab').addClass('active');
+        });
+
+        $(document).ready(function() {
+            loadUserProfile();
+            loadUserRequests();
+            loadSettings();
+        });
+    </script>
+</body>
+</html>

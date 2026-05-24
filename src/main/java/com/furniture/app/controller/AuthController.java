@@ -3,6 +3,7 @@ package com.furniture.app.controller;
 import com.furniture.app.dto.UserDto;
 import com.furniture.app.model.User;
 import com.furniture.app.service.UserService;
+import com.furniture.app.service.RequestService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -111,5 +112,50 @@ public class AuthController {
     @ResponseBody
     public User getUserProfile(HttpSession session) {
         return (User) session.getAttribute("user");
+    }
+    
+    @PutMapping("/api/user/update")
+    @ResponseBody
+    public ResponseEntity<?> updateUserProfile(@RequestBody Map<String, String> updates, HttpSession session) {
+        User user = (User) session.getAttribute("user");
+        if (user == null) {
+            return ResponseEntity.status(401).body("Not authenticated");
+        }
+        
+        if (updates.containsKey("fullName")) {
+            user.setFullName(updates.get("fullName"));
+        }
+        if (updates.containsKey("phone")) {
+            user.setPhone(updates.get("phone"));
+        }
+        
+        userService.saveUser(user);
+        session.setAttribute("user", user);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/api/user/change-password")
+    @ResponseBody
+    public ResponseEntity<?> changePassword(@RequestBody Map<String, String> request, HttpSession session) {
+        User user = (User) session.getAttribute("user");
+        if (user == null) {
+            return ResponseEntity.status(401).body("Not authenticated");
+        }
+        
+        String oldPassword = request.get("oldPassword");
+        String newPassword = request.get("newPassword");
+        
+        if (!user.getPassword().equals(oldPassword)) {
+            return ResponseEntity.badRequest().body("Неверный старый пароль");
+        }
+        
+        if (newPassword == null || newPassword.length() < 4) {
+            return ResponseEntity.badRequest().body("Новый пароль должен быть не менее 4 символов");
+        }
+        
+        user.setPassword(newPassword);
+        userService.saveUser(user);
+        session.setAttribute("user", user);
+        return ResponseEntity.ok().build();
     }
 }
