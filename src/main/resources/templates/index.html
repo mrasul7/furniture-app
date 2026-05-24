@@ -453,22 +453,83 @@
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-        // Форматирование телефона
+        // ========== ФОРМАТИРОВАНИЕ ТЕЛЕФОНА ==========
         function formatPhoneNumber(input) {
+            // Удаляем все нецифровые символы
             var value = input.value.replace(/\D/g, '');
-            if (value.length > 11) value = value.slice(0, 11);
+            
+            // Ограничиваем максимальную длину 11 цифрами
+            if (value.length > 11) {
+                value = value.slice(0, 11);
+            }
             
             var formatted = '';
             if (value.length > 0) {
+                // Начинаем с +7
                 formatted = '+7';
-                if (value.length > 1) formatted += ' (' + value.slice(1, 4);
-                if (value.length > 4) formatted += ') ' + value.slice(4, 7);
-                if (value.length > 7) formatted += '-' + value.slice(7, 9);
-                if (value.length > 9) formatted += '-' + value.slice(9, 11);
+                
+                // Добавляем код оператора в скобках
+                if (value.length > 1) {
+                    var code = value.slice(1, 4);
+                    formatted += ' (' + code;
+                    if (code.length === 3) {
+                        formatted += ')';
+                    }
+                }
+                
+                // Добавляем остальные цифры
+                if (value.length > 4) {
+                    var firstPart = value.slice(4, 7);
+                    formatted += ' ' + firstPart;
+                    if (firstPart.length === 3 && value.length > 7) {
+                        formatted += '-';
+                    }
+                }
+                if (value.length > 7) {
+                    var secondPart = value.slice(7, 9);
+                    formatted += secondPart;
+                    if (secondPart.length === 2 && value.length > 9) {
+                        formatted += '-';
+                    }
+                }
+                if (value.length > 9) {
+                    formatted += value.slice(9, 11);
+                }
+                
+                // Убираем лишние скобки и пробелы для красивого вида
+                if (code && code.length < 3) {
+                    formatted = '+7 (' + code;
+                }
             }
+            
             input.value = formatted;
         }
         
+        // Валидация телефона (должно быть 11 цифр, начинается с 7 или 8)
+        function validatePhone(phone) {
+            var digits = phone.replace(/\D/g, '');
+            if (digits.length !== 11) {
+                return false;
+            }
+            // Первая цифра должна быть 7 или 8
+            if (digits[0] !== '7' && digits[0] !== '8') {
+                return false;
+            }
+            return true;
+        }
+        
+        // Нормализация телефона для отправки на сервер (приводим к формату +7XXXXXXXXXX)
+        function normalizePhone(phone) {
+            var digits = phone.replace(/\D/g, '');
+            if (digits.length === 11) {
+                if (digits[0] === '8') {
+                    digits = '7' + digits.slice(1);
+                }
+                return '+' + digits;
+            }
+            return phone;
+        }
+
         function showToast(message, type) {
             $('.toast').remove();
             var toast = $('<div class="toast ' + type + '">' + message + '</div>');
@@ -479,9 +540,13 @@
         $(document).ready(function() {
             checkAuthStatus();
             
-            $('#regPhone').on('input', function() {
-                formatPhoneNumber(this);
-            });
+            // Привязываем форматирование к полю телефона
+            var phoneInput = document.getElementById('regPhone');
+            if (phoneInput) {
+                phoneInput.addEventListener('input', function() {
+                    formatPhoneNumber(this);
+                });
+            }
         });
 
         function checkAuthStatus() {
@@ -593,9 +658,10 @@
         $('#registerForm').on('submit', function(e) {
             e.preventDefault();
             
-            var phoneDigits = $('#regPhone').val().replace(/\D/g, '');
-            if (phoneDigits.length !== 11) {
-                showToast('Телефон должен содержать 11 цифр (с кодом страны)', 'error');
+            // Получаем телефон и проверяем
+            var phoneRaw = $('#regPhone').val();
+            if (!validatePhone(phoneRaw)) {
+                showToast('Телефон должен содержать 11 цифр (например: +7 XXX XXX-XX-XX)', 'error');
                 return;
             }
             
@@ -608,6 +674,9 @@
                 return;
             }
             
+            // Нормализуем телефон для отправки
+            var normalizedPhone = normalizePhone(phoneRaw);
+            
             $.ajax({
                 url: '/auth/register',
                 type: 'POST',
@@ -615,7 +684,7 @@
                 data: JSON.stringify({
                     fullName: $('#regFullName').val(),
                     email: $('#regEmail').val(),
-                    phone: $('#regPhone').val(),
+                    phone: normalizedPhone,
                     password: $('#regPassword').val()
                 }),
                 success: function() {

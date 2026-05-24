@@ -51,12 +51,6 @@
             background: #5a67d8;
             transform: translateY(-2px);
         }
-        .subtitle {
-            color: #666;
-            margin-bottom: 25px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid #eee;
-        }
         .stats {
             display: flex;
             gap: 20px;
@@ -79,24 +73,82 @@
             color: #666;
             font-size: 14px;
         }
-        .filters {
+        
+        /* Поиск и фильтры */
+        .search-filter-bar {
             display: flex;
             gap: 15px;
             margin-bottom: 20px;
             flex-wrap: wrap;
+            align-items: center;
         }
-        .filter-btn {
-            background: #e9ecef;
-            border: none;
-            padding: 8px 20px;
-            border-radius: 25px;
+        .search-input {
+            flex: 2;
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        .filter-select, .sort-select {
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
             cursor: pointer;
+        }
+        .btn-search, .btn-reset {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
             transition: all 0.3s;
         }
-        .filter-btn:hover, .filter-btn.active {
+        .btn-search {
             background: #667eea;
             color: white;
         }
+        .btn-search:hover {
+            background: #5a67d8;
+        }
+        .btn-reset {
+            background: #6c757d;
+            color: white;
+        }
+        .btn-reset:hover {
+            background: #5a6268;
+        }
+        
+        /* Дополнительные фильтры */
+        .extra-filters {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+        .extra-filters label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+        .date-range {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .date-range input {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 13px;
+        }
+        
         table {
             width: 100%;
             border-collapse: collapse;
@@ -112,6 +164,11 @@
             color: white;
             position: sticky;
             top: 0;
+            cursor: pointer;
+            user-select: none;
+        }
+        th:hover {
+            background: #5a67d8;
         }
         tr:hover {
             background: #f5f5f5;
@@ -136,6 +193,25 @@
         .consulted-btn:hover {
             transform: scale(1.05);
         }
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+        .badge-pending {
+            background: #ffc107;
+            color: #856404;
+        }
+        .badge-progress {
+            background: #17a2b8;
+            color: white;
+        }
+        .badge-completed {
+            background: #28a745;
+            color: white;
+        }
         .toast {
             position: fixed;
             bottom: 20px;
@@ -151,32 +227,16 @@
             background: #f56565;
         }
         @keyframes slideInRight {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-        footer {
-            margin-top: 30px;
-            text-align: center;
-            color: #999;
-            font-size: 12px;
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
         }
         @media (max-width: 768px) {
-            .container {
-                padding: 15px;
-            }
-            th, td {
-                padding: 8px;
-                font-size: 12px;
-            }
-            .stats {
-                flex-direction: column;
-            }
+            .container { padding: 15px; }
+            th, td { padding: 8px; font-size: 12px; }
+            .stats { flex-direction: column; }
+            .search-filter-bar, .extra-filters { flex-direction: column; }
+            .date-range { flex-direction: column; width: 100%; }
+            .date-range input { width: 100%; }
         }
     </style>
 </head>
@@ -186,7 +246,7 @@
             <h1>📋 Панель консультанта</h1>
             <button class="btn-home" onclick="goToHome()">🏠 На главную</button>
         </div>
-        <div class="subtitle">Управление заявками клиентов мебельного магазина</div>
+        <div class="subtitle" style="color:#666; margin-bottom:20px;">Управление заявками клиентов мебельного магазина</div>
         
         <div class="stats" id="stats">
             <div class="stat-card">
@@ -194,46 +254,79 @@
                 <div class="stat-label">Всего заявок</div>
             </div>
             <div class="stat-card">
-                <div class="stat-number" id="newCount">0</div>
+                <div class="stat-number" id="pendingCount">0</div>
                 <div class="stat-label">🟡 Новые</div>
             </div>
             <div class="stat-card">
-                <div class="stat-number" id="processingCount">0</div>
+                <div class="stat-number" id="progressCount">0</div>
                 <div class="stat-label">🔵 В обработке</div>
             </div>
             <div class="stat-card">
                 <div class="stat-number" id="completedCount">0</div>
                 <div class="stat-label">✅ Завершённые</div>
             </div>
+            <div class="stat-card">
+                <div class="stat-number" id="consultedCount">0</div>
+                <div class="stat-label">📞 Консультация проведена</div>
+            </div>
         </div>
         
-        <div class="filters">
-            <button class="filter-btn active" data-filter="all">📋 Все</button>
-            <button class="filter-btn" data-filter="PENDING">🟡 Новые</button>
-            <button class="filter-btn" data-filter="IN_PROGRESS">🔵 В обработке</button>
-            <button class="filter-btn" data-filter="COMPLETED">✅ Завершённые</button>
+        <!-- Поиск и основные фильтры -->
+        <div class="search-filter-bar">
+            <input type="text" id="searchInput" class="search-input" placeholder="🔍 Поиск по клиенту, телефону, email или товару...">
+            <select id="statusFilter" class="filter-select">
+                <option value="all">Все статусы</option>
+                <option value="PENDING">🟡 Новые</option>
+                <option value="IN_PROGRESS">🔵 В обработке</option>
+                <option value="COMPLETED">✅ Завершённые</option>
+            </select>
+            <select id="sortSelect" class="sort-select">
+                <option value="date_desc">По дате (новые сначала)</option>
+                <option value="date_asc">По дате (старые сначала)</option>
+                <option value="name_asc">По клиенту (А-Я)</option>
+                <option value="name_desc">По клиенту (Я-А)</option>
+                <option value="status_asc">По статусу</option>
+            </select>
+            <button class="btn-search" onclick="applyFilters()">🔍 Применить</button>
+            <button class="btn-reset" onclick="resetFilters()">🔄 Сбросить</button>
+        </div>
+        
+        <!-- Дополнительные фильтры -->
+        <div class="extra-filters">
+            <label>
+                <input type="checkbox" id="consultedFilter"> Только с проведённой консультацией
+            </label>
+            <label>
+                <input type="checkbox" id="notConsultedFilter"> Только без консультации
+            </label>
+            <div class="date-range">
+                <span>📅 Дата с:</span>
+                <input type="date" id="dateFrom">
+                <span>по:</span>
+                <input type="date" id="dateTo">
+            </div>
         </div>
         
         <div style="overflow-x: auto;">
             <table id="ordersTable">
                 <thead>
                     <tr>
-                        <th>ID</th>
-                        <th>Дата</th>
-                        <th>Клиент</th>
+                        <th onclick="sortBy('id')">ID ⬍</th>
+                        <th onclick="sortBy('date')">Дата ⬍</th>
+                        <th onclick="sortBy('name')">Клиент ⬍</th>
                         <th>Телефон</th>
                         <th>Email</th>
-                        <th>Товар</th>
+                        <th onclick="sortBy('product')">Товар ⬍</th>
                         <th>Категория</th>
-                        <th>Статус</th>
-                        <th>Консультация</th>
+                        <th onclick="sortBy('status')">Статус ⬍</th>
+                        <th onclick="sortBy('consulted')">Консультация ⬍</th>
                     </tr>
                 </thead>
                 <tbody id="ordersBody"></tbody>
             </table>
         </div>
         
-        <footer>
+        <footer style="margin-top: 30px; text-align: center; color: #999; font-size: 12px;">
             <p>© 2026 Мебельный склад - АИС учёта деятельности</p>
         </footer>
     </div>
@@ -241,7 +334,7 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         let ordersData = [];
-        let currentFilter = 'all';
+        let currentSort = { field: 'date', order: 'desc' };
         
         function goToHome() {
             window.location.href = '/';
@@ -252,9 +345,67 @@
             $('.toast').remove();
             var toast = $('<div class="toast ' + type + '">' + message + '</div>');
             $('body').append(toast);
-            setTimeout(function() {
-                toast.remove();
-            }, 3000);
+            setTimeout(function() { toast.remove(); }, 3000);
+        }
+        
+        // Функция для ограничения даты (год не больше текущего)
+        function setupDateRestrictions() {
+            var today = new Date();
+            var currentYear = today.getFullYear();
+            var currentMonth = String(today.getMonth() + 1).padStart(2, '0');
+            var currentDay = String(today.getDate()).padStart(2, '0');
+            var todayDateStr = currentYear + '-' + currentMonth + '-' + currentDay;
+            
+            var dateFrom = document.getElementById('dateFrom');
+            var dateTo = document.getElementById('dateTo');
+            
+            if (dateFrom) {
+                dateFrom.setAttribute('max', todayDateStr);
+                
+                dateFrom.addEventListener('change', function() {
+                    var fromDate = new Date(this.value);
+                    var toDate = dateTo.value ? new Date(dateTo.value) : null;
+                    
+                    if (fromDate > today) {
+                        this.value = todayDateStr;
+                        showToast('Дата не может быть позже сегодняшнего дня', 'error');
+                    }
+                    
+                    if (toDate && fromDate > toDate) {
+                        dateTo.value = this.value;
+                    }
+                    
+                    var selectedYear = fromDate.getFullYear();
+                    if (selectedYear > currentYear) {
+                        this.value = todayDateStr;
+                        showToast('Год не может быть больше текущего', 'error');
+                    }
+                });
+            }
+            
+            if (dateTo) {
+                dateTo.setAttribute('max', todayDateStr);
+                
+                dateTo.addEventListener('change', function() {
+                    var toDate = new Date(this.value);
+                    var fromDate = dateFrom.value ? new Date(dateFrom.value) : null;
+                    
+                    if (toDate > today) {
+                        this.value = todayDateStr;
+                        showToast('Дата не может быть позже сегодняшнего дня', 'error');
+                    }
+                    
+                    if (fromDate && toDate < fromDate) {
+                        this.value = dateFrom.value;
+                    }
+                    
+                    var selectedYear = toDate.getFullYear();
+                    if (selectedYear > currentYear) {
+                        this.value = todayDateStr;
+                        showToast('Год не может быть больше текущего', 'error');
+                    }
+                });
+            }
         }
         
         function loadRequests() {
@@ -265,7 +416,8 @@
                     ordersData = requests.map(function(r) {
                         return {
                             id: r.id,
-                            date: new Date(r.requestDate).toLocaleString(),
+                            date: r.requestDate,
+                            dateFormatted: new Date(r.requestDate).toLocaleString(),
                             name: r.fullName,
                             phone: r.phone,
                             email: r.email,
@@ -275,7 +427,7 @@
                             consulted: r.status === 'COMPLETED'
                         };
                     });
-                    renderTable();
+                    applyFilters();
                 },
                 error: function() {
                     showToast('Ошибка загрузки заявок', 'error');
@@ -283,87 +435,148 @@
             });
         }
         
-        function renderTable() {
-            var filteredOrders = currentFilter === 'all' ? ordersData : ordersData.filter(function(order) {
-                return order.status === currentFilter;
+        function applyFilters() {
+            var searchTerm = $('#searchInput').val().toLowerCase();
+            var statusFilter = $('#statusFilter').val();
+            var consultedOnly = $('#consultedFilter').is(':checked');
+            var notConsultedOnly = $('#notConsultedFilter').is(':checked');
+            var dateFrom = $('#dateFrom').val();
+            var dateTo = $('#dateTo').val();
+            var sortType = $('#sortSelect').val();
+            
+            var filtered = ordersData.filter(function(order) {
+                var matchSearch = order.name.toLowerCase().includes(searchTerm) ||
+                               order.phone.includes(searchTerm) ||
+                               order.email.toLowerCase().includes(searchTerm) ||
+                               order.product.toLowerCase().includes(searchTerm);
+                var matchStatus = (statusFilter === 'all') || (order.status === statusFilter);
+                var matchConsulted = true;
+                if (consultedOnly && notConsultedOnly) {
+                    matchConsulted = true;
+                } else if (consultedOnly) {
+                    matchConsulted = order.consulted === true;
+                } else if (notConsultedOnly) {
+                    matchConsulted = order.consulted === false;
+                }
+                
+                var matchDate = true;
+                if (dateFrom) {
+                    var orderDate = new Date(order.date);
+                    var fromDate = new Date(dateFrom);
+                    fromDate.setHours(0, 0, 0, 0);
+                    matchDate = matchDate && orderDate >= fromDate;
+                }
+                if (dateTo) {
+                    var orderDate = new Date(order.date);
+                    var toDate = new Date(dateTo);
+                    toDate.setHours(23, 59, 59, 999);
+                    matchDate = matchDate && orderDate <= toDate;
+                }
+                
+                return matchSearch && matchStatus && matchConsulted && matchDate;
             });
             
+            // Сортировка
+            if (sortType === 'date_desc') {
+                filtered.sort(function(a, b) { return new Date(b.date) - new Date(a.date); });
+            } else if (sortType === 'date_asc') {
+                filtered.sort(function(a, b) { return new Date(a.date) - new Date(b.date); });
+            } else if (sortType === 'name_asc') {
+                filtered.sort(function(a, b) { return a.name.localeCompare(b.name); });
+            } else if (sortType === 'name_desc') {
+                filtered.sort(function(a, b) { return b.name.localeCompare(a.name); });
+            } else if (sortType === 'status_asc') {
+                var statusOrder = { 'PENDING': 1, 'IN_PROGRESS': 2, 'COMPLETED': 3 };
+                filtered.sort(function(a, b) { return statusOrder[a.status] - statusOrder[b.status]; });
+            }
+            
+            renderTable(filtered);
+        }
+        
+        function sortBy(field) {
+            if (currentSort.field === field) {
+                currentSort.order = currentSort.order === 'asc' ? 'desc' : 'asc';
+            } else {
+                currentSort.field = field;
+                currentSort.order = 'asc';
+            }
+            
+            var filtered = ordersData;
+            
+            if (currentSort.field === 'id') {
+                filtered.sort(function(a, b) { return currentSort.order === 'asc' ? a.id - b.id : b.id - a.id; });
+            } else if (currentSort.field === 'date') {
+                filtered.sort(function(a, b) { return currentSort.order === 'asc' ? new Date(a.date) - new Date(b.date) : new Date(b.date) - new Date(a.date); });
+            } else if (currentSort.field === 'name') {
+                filtered.sort(function(a, b) { return currentSort.order === 'asc' ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name); });
+            } else if (currentSort.field === 'product') {
+                filtered.sort(function(a, b) { return currentSort.order === 'asc' ? a.product.localeCompare(b.product) : b.product.localeCompare(a.product); });
+            } else if (currentSort.field === 'status') {
+                var statusOrder = { 'PENDING': 1, 'IN_PROGRESS': 2, 'COMPLETED': 3 };
+                filtered.sort(function(a, b) { return currentSort.order === 'asc' ? statusOrder[a.status] - statusOrder[b.status] : statusOrder[b.status] - statusOrder[a.status]; });
+            } else if (currentSort.field === 'consulted') {
+                filtered.sort(function(a, b) { return currentSort.order === 'asc' ? (a.consulted === b.consulted ? 0 : a.consulted ? 1 : -1) : (a.consulted === b.consulted ? 0 : a.consulted ? -1 : 1); });
+            }
+            
+            renderTable(filtered);
+        }
+        
+        function renderTable(filteredOrders) {
             var total = ordersData.length;
-            var newCount = ordersData.filter(function(o) { return o.status === 'PENDING'; }).length;
-            var processingCount = ordersData.filter(function(o) { return o.status === 'IN_PROGRESS'; }).length;
-            var completedCount = ordersData.filter(function(o) { return o.status === 'COMPLETED'; }).length;
+            var pending = ordersData.filter(function(o) { return o.status === 'PENDING'; }).length;
+            var progress = ordersData.filter(function(o) { return o.status === 'IN_PROGRESS'; }).length;
+            var completed = ordersData.filter(function(o) { return o.status === 'COMPLETED'; }).length;
+            var consulted = ordersData.filter(function(o) { return o.consulted === true; }).length;
             
-            document.getElementById('totalCount').textContent = total;
-            document.getElementById('newCount').textContent = newCount;
-            document.getElementById('processingCount').textContent = processingCount;
-            document.getElementById('completedCount').textContent = completedCount;
+            $('#totalCount').text(total);
+            $('#pendingCount').text(pending);
+            $('#progressCount').text(progress);
+            $('#completedCount').text(completed);
+            $('#consultedCount').text(consulted);
             
-            var tbody = document.getElementById('ordersBody');
-            tbody.innerHTML = '';
+            var tbody = $('#ordersBody');
+            tbody.empty();
             
             for (var i = 0; i < filteredOrders.length; i++) {
                 var order = filteredOrders[i];
-                var row = tbody.insertRow();
                 
-                row.insertCell(0).textContent = order.id;
-                row.insertCell(1).textContent = order.date;
-                row.insertCell(2).textContent = order.name;
-                row.insertCell(3).textContent = order.phone;
-                row.insertCell(4).textContent = order.email;
-                row.insertCell(5).textContent = order.product;
-                row.insertCell(6).textContent = order.category;
-                
-                var statusCell = row.insertCell(7);
-                var select = document.createElement('select');
-                select.className = 'status-select';
-                select.setAttribute('data-id', order.id);
-                
-                var optionNew = document.createElement('option');
-                optionNew.value = 'PENDING';
-                optionNew.textContent = '🟡 PENDING (Новая)';
-                
-                var optionProcessing = document.createElement('option');
-                optionProcessing.value = 'IN_PROGRESS';
-                optionProcessing.textContent = '🔵 IN_PROGRESS (В обработке)';
-                
-                var optionCompleted = document.createElement('option');
-                optionCompleted.value = 'COMPLETED';
-                optionCompleted.textContent = '✅ COMPLETED (Завершена)';
-                
-                select.appendChild(optionNew);
-                select.appendChild(optionProcessing);
-                select.appendChild(optionCompleted);
-                
-                if (order.status === 'PENDING') select.value = 'PENDING';
-                else if (order.status === 'IN_PROGRESS') select.value = 'IN_PROGRESS';
-                else select.value = 'COMPLETED';
-                
-                select.onchange = (function(id) {
-                    return function(e) {
-                        changeStatus(id, this.value);
-                    };
-                })(order.id);
-                
-                statusCell.appendChild(select);
-                
-                var consultedCell = row.insertCell(8);
-                var consultedBtn = document.createElement('button');
-                consultedBtn.className = 'consulted-btn';
-                if (order.consulted) {
-                    consultedBtn.innerHTML = '✅ Проведена';
-                    consultedBtn.style.background = '#d4edda';
-                    consultedBtn.style.color = '#28a745';
+                var statusClass = '';
+                var statusText = '';
+                if (order.status === 'PENDING') {
+                    statusClass = 'badge-pending';
+                    statusText = '🟡 Новая';
+                } else if (order.status === 'IN_PROGRESS') {
+                    statusClass = 'badge-progress';
+                    statusText = '🔵 В обработке';
                 } else {
-                    consultedBtn.innerHTML = '❌ Не проведена';
-                    consultedBtn.style.background = '#f8d7da';
-                    consultedBtn.style.color = '#dc3545';
+                    statusClass = 'badge-completed';
+                    statusText = '✅ Завершена';
                 }
-                consultedBtn.onclick = (function(id) {
-                    return function() {
-                        toggleConsulted(id);
-                    };
-                })(order.id);
-                consultedCell.appendChild(consultedBtn);
+                
+                var row = '<tr>' +
+                    '<td>' + order.id + '</td>' +
+                    '<td>' + order.dateFormatted + '</td>' +
+                    '<td>' + escapeHtml(order.name) + '</td>' +
+                    '<td>' + order.phone + '</td>' +
+                    '<td>' + order.email + '</td>' +
+                    '<td>' + escapeHtml(order.product) + '</td>' +
+                    '<td>' + escapeHtml(order.category) + '</td>' +
+                    '<td>' +
+                        '<select class="status-select" data-id="' + order.id + '" onchange="changeStatus(' + order.id + ', this.value)">' +
+                            '<option value="PENDING"' + (order.status === 'PENDING' ? ' selected' : '') + '>🟡 Новая</option>' +
+                            '<option value="IN_PROGRESS"' + (order.status === 'IN_PROGRESS' ? ' selected' : '') + '>🔵 В обработке</option>' +
+                            '<option value="COMPLETED"' + (order.status === 'COMPLETED' ? ' selected' : '') + '>✅ Завершена</option>' +
+                        '</select>' +
+                    '</td>' +
+                    '<td>' +
+                        '<button class="consulted-btn" style="background:' + (order.consulted ? '#d4edda' : '#f8d7da') + '; color:' + (order.consulted ? '#28a745' : '#dc3545') + '" onclick="toggleConsulted(' + order.id + ')">' + (order.consulted ? '✅ Проведена' : '❌ Не проведена') + '</button>' +
+                    '</td>' +
+                '</tr>';
+                tbody.append(row);
+            }
+            
+            if (filteredOrders.length === 0) {
+                tbody.append('<tr><td colspan="9" style="text-align:center;">Заявки не найдены</td><td style="display:none;"></td><td style="display:none;"></td><td style="display:none;"></td><td style="display:none;"></td><td style="display:none;"></td><td style="display:none;"></td><td style="display:none;"></td><td style="display:none;"></td></tr>');
             }
         }
         
@@ -377,8 +590,11 @@
             }
             if (index !== -1) {
                 ordersData[index].status = newStatus;
+                if (newStatus === 'COMPLETED') {
+                    ordersData[index].consulted = true;
+                }
                 showToast('Заявка #' + id + ': статус изменён');
-                renderTable();
+                applyFilters();
             }
         }
         
@@ -393,8 +609,19 @@
             if (index !== -1) {
                 ordersData[index].consulted = !ordersData[index].consulted;
                 showToast('Заявка #' + id + ': консультация ' + (ordersData[index].consulted ? 'проведена' : 'не проведена'));
-                renderTable();
+                applyFilters();
             }
+        }
+        
+        function resetFilters() {
+            $('#searchInput').val('');
+            $('#statusFilter').val('all');
+            $('#consultedFilter').prop('checked', false);
+            $('#notConsultedFilter').prop('checked', false);
+            $('#dateFrom').val('');
+            $('#dateTo').val('');
+            $('#sortSelect').val('date_desc');
+            applyFilters();
         }
         
         function escapeHtml(text) {
@@ -407,19 +634,36 @@
             });
         }
         
-        var filterBtns = document.querySelectorAll('.filter-btn');
-        for (var i = 0; i < filterBtns.length; i++) {
-            filterBtns[i].addEventListener('click', function() {
-                for (var j = 0; j < filterBtns.length; j++) {
-                    filterBtns[j].classList.remove('active');
-                }
-                this.classList.add('active');
-                currentFilter = this.getAttribute('data-filter');
-                renderTable();
-            });
-        }
+        // События фильтрации
+        $('#searchInput').on('input', function() { applyFilters(); });
+        $('#statusFilter').on('change', function() { applyFilters(); });
+        $('#consultedFilter').on('change', function() { 
+            if ($(this).is(':checked')) $('#notConsultedFilter').prop('checked', false);
+            applyFilters();
+        });
+        $('#notConsultedFilter').on('change', function() { 
+            if ($(this).is(':checked')) $('#consultedFilter').prop('checked', false);
+            applyFilters();
+        });
+        $('#dateFrom, #dateTo').on('change', function() { applyFilters(); });
+        $('#sortSelect').on('change', function() { applyFilters(); });
         
-        loadRequests();
+        // Инициализация
+        $(document).ready(function() {
+            // Установка максимальной даты
+            var today = new Date();
+            var currentYear = today.getFullYear();
+            var currentMonth = String(today.getMonth() + 1).padStart(2, '0');
+            var currentDay = String(today.getDate()).padStart(2, '0');
+            var maxDate = currentYear + '-' + currentMonth + '-' + currentDay;
+            
+            $('#dateFrom, #dateTo').attr('max', maxDate);
+            
+            // Установка ограничений на год
+            setupDateRestrictions();
+            
+            loadRequests();
+        });
     </script>
 </body>
 </html>
