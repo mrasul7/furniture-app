@@ -46,6 +46,7 @@
         .nav-buttons {
             display: flex;
             gap: 1rem;
+            align-items: center;
         }
 
         .nav-btn {
@@ -190,7 +191,7 @@
             padding: 2rem;
             border-radius: 15px;
             width: 90%;
-            max-width: 500px;
+            max-width: 450px;
             position: relative;
             animation: slideDown 0.3s;
         }
@@ -265,12 +266,47 @@
             opacity: 0.9;
         }
 
+        .modal-links {
+            text-align: center;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .modal-links a {
+            color: #667eea;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .modal-links a:hover {
+            text-decoration: underline;
+        }
+
         .footer {
             background: white;
             text-align: center;
             padding: 2rem;
             margin-top: 3rem;
             color: #666;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 12px 20px;
+            border-radius: 8px;
+            color: white;
+            z-index: 1002;
+            animation: slideInRight 0.3s ease-out;
+        }
+
+        .toast.success { background: #48bb78; }
+        .toast.error { background: #f56565; }
+
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
         }
 
         @media (max-width: 768px) {
@@ -300,6 +336,7 @@
                     <button class="nav-btn register" onclick="openRegisterModal()">Регистрация</button>
                 </div>
                 <div class="user-info" id="authButtons" style="display: none;">
+                    <button id="panelButton" class="nav-btn" style="background:#667eea; display:none;" onclick="goToPanel()">👑 Панель</button>
                     <span class="user-name" id="userName">User</span>
                     <button class="nav-btn logout" onclick="logout()">Выход</button>
                 </div>
@@ -334,6 +371,7 @@
         </div>
     </div>
 
+    <!-- Модальное окно входа -->
     <div id="loginModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeLoginModal()">&times;</span>
@@ -341,7 +379,7 @@
             <form id="loginForm">
                 <div class="form-group">
                     <label>Email:</label>
-                    <input type="email" id="loginEmail" placeholder="Введите email" required>
+                    <input type="email" id="loginEmail" placeholder="example@mail.com" required>
                 </div>
                 <div class="form-group">
                     <label>Пароль:</label>
@@ -349,9 +387,14 @@
                 </div>
                 <button type="submit" class="btn-submit">Войти</button>
             </form>
+            <div class="modal-links">
+                <a onclick="openResetPasswordModal()">Забыли пароль? Сбросить</a><br>
+                <a onclick="switchToRegister()">Нет аккаунта? Зарегистрироваться</a>
+            </div>
         </div>
     </div>
 
+    <!-- Модальное окно регистрации -->
     <div id="registerModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeRegisterModal()">&times;</span>
@@ -367,7 +410,7 @@
                 </div>
                 <div class="form-group">
                     <label>Телефон:</label>
-                    <input type="tel" id="regPhone" placeholder="+7 (XXX) XXX-XX-XX" required>
+                    <input type="tel" id="regPhone" placeholder="+7 (XXX) XXX-XX-XX" maxlength="18" required>
                 </div>
                 <div class="form-group">
                     <label>Пароль:</label>
@@ -379,6 +422,27 @@
                 </div>
                 <button type="submit" class="btn-submit">Зарегистрироваться</button>
             </form>
+            <div class="modal-links">
+                <a onclick="switchToLogin()">Уже зарегистрировались? Войти</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно сброса пароля -->
+    <div id="resetPasswordModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeResetPasswordModal()">&times;</span>
+            <h2>🔄 Сброс пароля</h2>
+            <form id="resetPasswordForm">
+                <div class="form-group">
+                    <label>Email:</label>
+                    <input type="email" id="resetEmail" placeholder="example@mail.com" required>
+                </div>
+                <button type="submit" class="btn-submit">Сбросить пароль</button>
+            </form>
+            <div class="modal-links">
+                <a onclick="switchToLogin()">Вспомнили пароль? Войти</a>
+            </div>
         </div>
     </div>
 
@@ -389,8 +453,35 @@
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
+        // Форматирование телефона
+        function formatPhoneNumber(input) {
+            var value = input.value.replace(/\D/g, '');
+            if (value.length > 11) value = value.slice(0, 11);
+            
+            var formatted = '';
+            if (value.length > 0) {
+                formatted = '+7';
+                if (value.length > 1) formatted += ' (' + value.slice(1, 4);
+                if (value.length > 4) formatted += ') ' + value.slice(4, 7);
+                if (value.length > 7) formatted += '-' + value.slice(7, 9);
+                if (value.length > 9) formatted += '-' + value.slice(9, 11);
+            }
+            input.value = formatted;
+        }
+        
+        function showToast(message, type) {
+            $('.toast').remove();
+            var toast = $('<div class="toast ' + type + '">' + message + '</div>');
+            $('body').append(toast);
+            setTimeout(function() { toast.remove(); }, 3000);
+        }
+
         $(document).ready(function() {
             checkAuthStatus();
+            
+            $('#regPhone').on('input', function() {
+                formatPhoneNumber(this);
+            });
         });
 
         function checkAuthStatus() {
@@ -402,39 +493,85 @@
                         $('#unauthButtons').hide();
                         $('#authButtons').show();
                         $('#userName').text(response.email);
+                        checkAndShowPanelButton();
                     } else {
                         $('#unauthButtons').show();
                         $('#authButtons').hide();
                     }
-                },
-                error: function() {
-                    $('#unauthButtons').show();
-                    $('#authButtons').hide();
                 }
             });
         }
 
-        function openLoginModal() {
-            $('#loginModal').fadeIn(200);
+        function checkAndShowPanelButton() {
+            $.ajax({
+                url: '/api/user/role',
+                type: 'GET',
+                success: function(response) {
+                    if (response.authenticated && response.role !== 'CLIENT') {
+                        $('#panelButton').show();
+                    } else {
+                        $('#panelButton').hide();
+                    }
+                }
+            });
         }
 
-        function closeLoginModal() {
-            $('#loginModal').fadeOut(200);
+        function goToPanel() {
+            $.ajax({
+                url: '/api/user/role',
+                type: 'GET',
+                success: function(response) {
+                    if (response.authenticated) {
+                        if (response.role === 'CONSULTANT') window.location.href = '/consultant';
+                        else if (response.role === 'ADMIN') window.location.href = '/admin';
+                        else if (response.role === 'SUPER_ADMIN') window.location.href = '/super-admin';
+                        else showToast('У вас нет доступа к панели', 'error');
+                    }
+                }
+            });
+        }
+
+        function openLoginModal() { 
+            $('#loginModal').fadeIn(200); 
+        }
+        
+        function closeLoginModal() { 
+            $('#loginModal').fadeOut(200); 
             $('#loginForm')[0].reset();
         }
-
-        function openRegisterModal() {
-            $('#registerModal').fadeIn(200);
+        
+        function openRegisterModal() { 
+            $('#registerModal').fadeIn(200); 
         }
-
-        function closeRegisterModal() {
-            $('#registerModal').fadeOut(200);
+        
+        function closeRegisterModal() { 
+            $('#registerModal').fadeOut(200); 
             $('#registerForm')[0].reset();
+        }
+        
+        function openResetPasswordModal() {
+            closeLoginModal();
+            $('#resetPasswordModal').fadeIn(200);
+        }
+        
+        function closeResetPasswordModal() {
+            $('#resetPasswordModal').fadeOut(200);
+            $('#resetPasswordForm')[0].reset();
+        }
+        
+        function switchToRegister() {
+            closeLoginModal();
+            openRegisterModal();
+        }
+        
+        function switchToLogin() {
+            closeRegisterModal();
+            closeResetPasswordModal();
+            openLoginModal();
         }
 
         $('#loginForm').on('submit', function(e) {
             e.preventDefault();
-            
             $.ajax({
                 url: '/auth/login',
                 type: 'POST',
@@ -444,12 +581,11 @@
                     password: $('#loginPassword').val()
                 }),
                 success: function(response) {
-                    window.location.href = '/';
+                    showToast('Вход выполнен успешно!', 'success');
+                    setTimeout(function() { window.location.href = '/'; }, 1000);
                 },
                 error: function(xhr) {
-                    let message = 'Неверный email или пароль';
-                    if (xhr.responseText) message = xhr.responseText;
-                    alert(message);
+                    showToast('Неверный email или пароль', 'error');
                 }
             });
         });
@@ -457,13 +593,18 @@
         $('#registerForm').on('submit', function(e) {
             e.preventDefault();
             
-            if ($('#regPassword').val() !== $('#regConfirmPassword').val()) {
-                alert('Пароли не совпадают!');
+            var phoneDigits = $('#regPhone').val().replace(/\D/g, '');
+            if (phoneDigits.length !== 11) {
+                showToast('Телефон должен содержать 11 цифр (с кодом страны)', 'error');
                 return;
             }
             
+            if ($('#regPassword').val() !== $('#regConfirmPassword').val()) {
+                showToast('Пароли не совпадают!', 'error');
+                return;
+            }
             if ($('#regPassword').val().length < 4) {
-                alert('Пароль должен быть не менее 4 символов!');
+                showToast('Пароль должен быть не менее 4 символов!', 'error');
                 return;
             }
             
@@ -477,17 +618,22 @@
                     phone: $('#regPhone').val(),
                     password: $('#regPassword').val()
                 }),
-                success: function(response) {
-                    alert('Регистрация успешна! Теперь вы можете войти.');
+                success: function() {
+                    showToast('Регистрация успешна!', 'success');
                     closeRegisterModal();
                     openLoginModal();
                 },
                 error: function(xhr) {
-                    let message = 'Ошибка регистрации';
-                    if (xhr.responseText) message = xhr.responseText;
-                    alert(message);
+                    showToast('Ошибка регистрации', 'error');
                 }
             });
+        });
+        
+        $('#resetPasswordForm').on('submit', function(e) {
+            e.preventDefault();
+            showToast('Инструкция по сбросу пароля отправлена на email', 'success');
+            closeResetPasswordModal();
+            openLoginModal();
         });
 
         function logout() {
@@ -495,25 +641,20 @@
                 url: '/auth/logout',
                 type: 'POST',
                 success: function() {
-                    window.location.href = '/';
-                },
-                error: function() {
-                    window.location.href = '/';
+                    showToast('Вы вышли из системы', 'success');
+                    setTimeout(function() { window.location.href = '/'; }, 1000);
                 }
             });
         }
 
-        function goToCatalog() {
-            window.location.href = '/catalog';
+        function goToCatalog() { 
+            window.location.href = '/catalog'; 
         }
 
         $(window).click(function(event) {
-            if ($(event.target).is('#loginModal')) {
-                closeLoginModal();
-            }
-            if ($(event.target).is('#registerModal')) {
-                closeRegisterModal();
-            }
+            if ($(event.target).is('#loginModal')) closeLoginModal();
+            if ($(event.target).is('#registerModal')) closeRegisterModal();
+            if ($(event.target).is('#resetPasswordModal')) closeResetPasswordModal();
         });
     </script>
 </body>

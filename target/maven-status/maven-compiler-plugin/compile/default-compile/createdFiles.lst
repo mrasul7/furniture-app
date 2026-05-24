@@ -1,5 +1,7 @@
 com/furniture/app/model/Product.class
+com/furniture/app/controller/ConsultantController.class
 com/furniture/app/service/RequestService.class
+com/furniture/app/controller/UserController.class
 com/furniture/app/repository/ProductRepository.class
 com/furniture/app/controller/AdminController.class
 com/furniture/app/controller/AuthController.class

@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/requests")
@@ -57,5 +58,11 @@ public class RequestController {
         
         requestService.createRequest(request);
         return ResponseEntity.ok("Request submitted successfully");
+    }
+    
+    @GetMapping("/all")
+    @ResponseBody
+    public List<Request> getAllRequests() {
+        return requestService.getAllRequests();
     }
 }

@@ -64,7 +64,7 @@ public class AuthController {
         user.setFullName(userDto.getFullName());
         user.setEmail(userDto.getEmail());
         user.setPhone(userDto.getPhone());
-        user.setPassword(userDto.getPassword()); // Без шифрования для простоты
+        user.setPassword(userDto.getPassword());
         
         userService.registerUser(user);
         return ResponseEntity.ok("Registration successful");
@@ -86,6 +86,20 @@ public class AuthController {
         if (user != null) {
             response.put("authenticated", true);
             response.put("email", user.getEmail());
+            response.put("role", user.getRole().name());
+        } else {
+            response.put("authenticated", false);
+        }
+        return response;
+    }
+    
+    @GetMapping("/api/user/role")
+    @ResponseBody
+    public Map<String, Object> getUserRole(HttpSession session) {
+        Map<String, Object> response = new HashMap<>();
+        User user = (User) session.getAttribute("user");
+        if (user != null) {
+            response.put("authenticated", true);
             response.put("role", user.getRole().name());
         } else {
             response.put("authenticated", false);

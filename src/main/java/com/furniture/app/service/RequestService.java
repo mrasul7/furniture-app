@@ -48,4 +48,13 @@ public class RequestService {
             .filter(request -> request.getStatus() != null && request.getStatus().equals(status))
             .collect(Collectors.toList());
     }
+    
+    public void deleteRequestsByUserId(Long userId) {
+        List<Request> userRequests = requestRepository.findAll().stream()
+            .filter(r -> r.getUser() != null && r.getUser().getId().equals(userId))
+            .collect(Collectors.toList());
+        if (!userRequests.isEmpty()) {
+            requestRepository.deleteAll(userRequests);
+        }
+    }
 }
