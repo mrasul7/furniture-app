@@ -3,6 +3,7 @@ package com.furniture.app.model;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import javax.persistence.*;
 import java.util.List;
 
@@ -20,6 +21,7 @@ public class Category {
     
     private String description;
     
+    @JsonIgnore
     @OneToMany(mappedBy = "category")
     private List<Product> products;
 }

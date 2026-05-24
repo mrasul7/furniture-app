@@ -40,6 +40,7 @@
             font-weight: bold;
             color: #667eea;
             text-decoration: none;
+            cursor: pointer;
         }
 
         .nav-buttons {
@@ -221,6 +222,7 @@
         .modal h2 {
             margin-bottom: 1.5rem;
             color: #333;
+            text-align: center;
         }
 
         .form-group {
@@ -291,14 +293,16 @@
 <body>
     <div class="header">
         <div class="header-content">
-            <a href="/" class="logo">🏠 Мебельный склад</a>
-            <div class="nav-buttons" id="unauthButtons">
-                <button class="nav-btn login" onclick="openLoginModal()">Вход</button>
-                <button class="nav-btn register" onclick="openRegisterModal()">Регистрация</button>
-            </div>
-            <div class="user-info" id="authButtons" style="display: none;">
-                <span class="user-name" id="userName">User</span>
-                <button class="nav-btn logout" onclick="logout()">Выход</button>
+            <div class="logo" onclick="goToCatalog()">🏠 Мебельный склад</div>
+            <div class="nav-buttons">
+                <div id="unauthButtons">
+                    <button class="nav-btn login" onclick="openLoginModal()">Вход</button>
+                    <button class="nav-btn register" onclick="openRegisterModal()">Регистрация</button>
+                </div>
+                <div class="user-info" id="authButtons" style="display: none;">
+                    <span class="user-name" id="userName">User</span>
+                    <button class="nav-btn logout" onclick="logout()">Выход</button>
+                </div>
             </div>
         </div>
     </div>
@@ -308,7 +312,6 @@
             <h1>Добро пожаловать на Мебельный склад!</h1>
             <p>Широкий ассортимент качественной мебели по доступным ценам.  
             У нас вы найдете мебель для дома, офиса и дачи.</p>
-            <!-- ИСПРАВЛЕННАЯ КНОПКА - теперь это ссылка -->
             <a href="/catalog" class="btn-catalog">Перейти в каталог ➜</a>
         </div>
 
@@ -334,15 +337,15 @@
     <div id="loginModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeLoginModal()">&times;</span>
-            <h2>Вход в систему</h2>
+            <h2>🔐 Вход в систему</h2>
             <form id="loginForm">
                 <div class="form-group">
-                    <label for="username">Email:</label>
-                    <input type="email" id="username" name="username" required>
+                    <label>Email:</label>
+                    <input type="email" id="loginEmail" placeholder="Введите email" required>
                 </div>
                 <div class="form-group">
-                    <label for="password">Пароль:</label>
-                    <input type="password" id="password" name="password" required>
+                    <label>Пароль:</label>
+                    <input type="password" id="loginPassword" placeholder="Введите пароль" required>
                 </div>
                 <button type="submit" class="btn-submit">Войти</button>
             </form>
@@ -352,27 +355,27 @@
     <div id="registerModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeRegisterModal()">&times;</span>
-            <h2>Регистрация</h2>
+            <h2>📝 Регистрация</h2>
             <form id="registerForm">
                 <div class="form-group">
-                    <label for="regFullName">ФИО:</label>
-                    <input type="text" id="regFullName" required>
+                    <label>ФИО:</label>
+                    <input type="text" id="regFullName" placeholder="Иванов Иван Иванович" required>
                 </div>
                 <div class="form-group">
-                    <label for="regEmail">Email:</label>
-                    <input type="email" id="regEmail" required>
+                    <label>Email:</label>
+                    <input type="email" id="regEmail" placeholder="example@mail.com" required>
                 </div>
                 <div class="form-group">
-                    <label for="regPhone">Телефон:</label>
-                    <input type="tel" id="regPhone" required>
+                    <label>Телефон:</label>
+                    <input type="tel" id="regPhone" placeholder="+7 (XXX) XXX-XX-XX" required>
                 </div>
                 <div class="form-group">
-                    <label for="regPassword">Пароль:</label>
-                    <input type="password" id="regPassword" required>
+                    <label>Пароль:</label>
+                    <input type="password" id="regPassword" placeholder="Минимум 4 символа" required>
                 </div>
                 <div class="form-group">
-                    <label for="regConfirmPassword">Подтверждение пароля:</label>
-                    <input type="password" id="regConfirmPassword" required>
+                    <label>Подтверждение пароля:</label>
+                    <input type="password" id="regConfirmPassword" placeholder="Повторите пароль" required>
                 </div>
                 <button type="submit" class="btn-submit">Зарегистрироваться</button>
             </form>
@@ -403,25 +406,29 @@
                         $('#unauthButtons').show();
                         $('#authButtons').hide();
                     }
+                },
+                error: function() {
+                    $('#unauthButtons').show();
+                    $('#authButtons').hide();
                 }
             });
         }
 
         function openLoginModal() {
-            $('#loginModal').show();
+            $('#loginModal').fadeIn(200);
         }
 
         function closeLoginModal() {
-            $('#loginModal').hide();
+            $('#loginModal').fadeOut(200);
             $('#loginForm')[0].reset();
         }
 
         function openRegisterModal() {
-            $('#registerModal').show();
+            $('#registerModal').fadeIn(200);
         }
 
         function closeRegisterModal() {
-            $('#registerModal').hide();
+            $('#registerModal').fadeOut(200);
             $('#registerForm')[0].reset();
         }
 
@@ -433,14 +440,16 @@
                 type: 'POST',
                 contentType: 'application/json',
                 data: JSON.stringify({
-                    username: $('#username').val(),
-                    password: $('#password').val()
+                    username: $('#loginEmail').val(),
+                    password: $('#loginPassword').val()
                 }),
                 success: function(response) {
                     window.location.href = '/';
                 },
                 error: function(xhr) {
-                    alert('Неверный email или пароль');
+                    let message = 'Неверный email или пароль';
+                    if (xhr.responseText) message = xhr.responseText;
+                    alert(message);
                 }
             });
         });
@@ -450,6 +459,11 @@
             
             if ($('#regPassword').val() !== $('#regConfirmPassword').val()) {
                 alert('Пароли не совпадают!');
+                return;
+            }
+            
+            if ($('#regPassword').val().length < 4) {
+                alert('Пароль должен быть не менее 4 символов!');
                 return;
             }
             
@@ -469,7 +483,9 @@
                     openLoginModal();
                 },
                 error: function(xhr) {
-                    alert('Ошибка: ' + xhr.responseText);
+                    let message = 'Ошибка регистрации';
+                    if (xhr.responseText) message = xhr.responseText;
+                    alert(message);
                 }
             });
         });
@@ -479,6 +495,9 @@
                 url: '/auth/logout',
                 type: 'POST',
                 success: function() {
+                    window.location.href = '/';
+                },
+                error: function() {
                     window.location.href = '/';
                 }
             });

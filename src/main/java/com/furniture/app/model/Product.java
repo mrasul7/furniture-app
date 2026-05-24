@@ -3,8 +3,8 @@ package com.furniture.app.model;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import javax.persistence.*;
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
@@ -45,6 +45,7 @@ public class Product {
     
     private boolean active = true;
     
+    @JsonIgnore
     private LocalDateTime createdAt;
     
     @PrePersist

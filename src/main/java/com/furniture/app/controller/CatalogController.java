@@ -32,20 +32,25 @@ public class CatalogController {
     public List<Product> getProducts(
             @RequestParam(required = false) String search,
             @RequestParam(required = false) Long category) {
-        System.out.println("=== API /api/products CALLED ===");
-        System.out.println("Search: " + search);
-        System.out.println("Category: " + category);
         
-        List<Product> products;
+        List<Product> products = productService.getAllProducts();
+        
+        // Фильтр по поиску
         if (search != null && !search.isEmpty()) {
-            products = productService.searchProducts(search);
-        } else if (category != null) {
-            products = productService.filterByCategory(category);
-        } else {
-            products = productService.getAllProducts();
+            String searchLower = search.toLowerCase();
+            products = products.stream()
+                .filter(p -> (p.getName() != null && p.getName().toLowerCase().contains(searchLower)) ||
+                            (p.getDescription() != null && p.getDescription().toLowerCase().contains(searchLower)))
+                .collect(Collectors.toList());
         }
         
-        System.out.println("Products found: " + products.size());
+        // Фильтр по категории
+        if (category != null) {
+            products = products.stream()
+                .filter(p -> p.getCategory() != null && p.getCategory().getId().equals(category))
+                .collect(Collectors.toList());
+        }
+        
         return products;
     }
     
@@ -61,8 +66,6 @@ public class CatalogController {
             @RequestParam(required = false) String color,
             @RequestParam(required = false) String materials,
             @RequestParam(required = false) Boolean inStockOnly) {
-        
-        System.out.println("=== API /api/products/filter CALLED ===");
         
         List<Product> products = productService.getAllProducts();
         
@@ -115,20 +118,6 @@ public class CatalogController {
                 .collect(Collectors.toList());
         }
         
-        // Фильтр по материалам
-        if (materials != null && !materials.isEmpty()) {
-            String[] materialArray = materials.split(",");
-            products = products.stream()
-                .filter(p -> {
-                    if (p.getMaterial() == null) return false;
-                    for (String m : materialArray) {
-                        if (p.getMaterial().contains(m)) return true;
-                    }
-                    return false;
-                })
-                .collect(Collectors.toList());
-        }
-        
         // Фильтр по наличию
         if (inStockOnly != null && inStockOnly) {
             products = products.stream()
@@ -136,28 +125,24 @@ public class CatalogController {
                 .collect(Collectors.toList());
         }
         
-        System.out.println("Filtered products found: " + products.size());
         return products;
     }
     
     @GetMapping("/api/products/{id}")
     @ResponseBody
     public Product getProduct(@PathVariable Long id) {
-        System.out.println("=== API /api/products/" + id + " CALLED ===");
         return productService.getProductById(id).orElse(null);
     }
     
     @GetMapping("/api/categories")
     @ResponseBody
     public List<Category> getCategories() {
-        System.out.println("=== API /api/categories CALLED ===");
         return categoryService.getAllCategories();
     }
     
     @GetMapping("/api/products/manufacturers")
     @ResponseBody
     public List<String> getManufacturers() {
-        System.out.println("=== API /api/products/manufacturers CALLED ===");
         return productService.getAllProducts().stream()
             .map(Product::getManufacturer)
             .filter(m -> m != null && !m.isEmpty())
