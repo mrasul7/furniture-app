@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мебельный склад - Главная</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .header {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .nav-btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        .nav-btn.login {
+            background: #667eea;
+            color: white;
+        }
+
+        .nav-btn.register {
+            background: #48bb78;
+            color: white;
+        }
+
+        .nav-btn.logout {
+            background: #f56565;
+            color: white;
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-name {
+            color: #333;
+            font-weight: 500;
+        }
+
+        .main-content {
+            max-width: 1200px;
+            margin: 80px auto 0;
+            padding: 2rem;
+        }
+
+        .hero {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 3rem;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            color: #333;
+            margin-bottom: 1rem;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: #666;
+            margin-bottom: 2rem;
+        }
+
+        .btn-catalog {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: transform 0.3s;
+            text-decoration: none;
+        }
+
+        .btn-catalog:hover {
+            transform: scale(1.05);
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .feature-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature-card h3 {
+            color: #333;
+            margin-bottom: 1rem;
+        }
+
+        .feature-card p {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1001;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background: white;
+            margin: 10% auto;
+            padding: 2rem;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 500px;
+            position: relative;
+            animation: slideDown 0.3s;
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .close {
+            position: absolute;
+            right: 1rem;
+            top: 1rem;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .close:hover {
+            color: #333;
+        }
+
+        .modal h2 {
+            margin-bottom: 1.5rem;
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 0.75rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            margin-top: 1rem;
+        }
+
+        .btn-submit:hover {
+            opacity: 0.9;
+        }
+
+        .footer {
+            background: white;
+            text-align: center;
+            padding: 2rem;
+            margin-top: 3rem;
+            color: #666;
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+            
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .modal-content {
+                margin: 20% auto;
+                width: 95%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <a href="/" class="logo">🏠 Мебельный склад</a>
+            <div class="nav-buttons" id="unauthButtons">
+                <button class="nav-btn login" onclick="openLoginModal()">Вход</button>
+                <button class="nav-btn register" onclick="openRegisterModal()">Регистрация</button>
+            </div>
+            <div class="user-info" id="authButtons" style="display: none;">
+                <span class="user-name" id="userName">User</span>
+                <button class="nav-btn logout" onclick="logout()">Выход</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="hero">
+            <h1>Добро пожаловать на Мебельный склад!</h1>
+            <p>Широкий ассортимент качественной мебели по доступным ценам.  
+            У нас вы найдете мебель для дома, офиса и дачи.</p>
+            <!-- ИСПРАВЛЕННАЯ КНОПКА - теперь это ссылка -->
+            <a href="/catalog" class="btn-catalog">Перейти в каталог ➜</a>
+        </div>
+
+        <div class="features">
+            <div class="feature-card">
+                <div class="feature-icon">🛋️</div>
+                <h3>Только качественная мебель</h3>
+                <p>Мы сотрудничаем только с проверенными производителями и гарантируем высокое качество всей продукции.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🚚</div>
+                <h3>Быстрая доставка</h3>
+                <p>Доставляем мебель по всей стране в кратчайшие сроки. Бесплатная доставка при заказе от 50 000 ₽.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📞</div>
+                <h3>Помощь консультанта</h3>
+                <p>Нужна помощь в выборе? Наши консультанты всегда готовы ответить на ваши вопросы по телефону.</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeLoginModal()">&times;</span>
+            <h2>Вход в систему</h2>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="username">Email:</label>
+                    <input type="email" id="username" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Пароль:</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                <button type="submit" class="btn-submit">Войти</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="registerModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeRegisterModal()">&times;</span>
+            <h2>Регистрация</h2>
+            <form id="registerForm">
+                <div class="form-group">
+                    <label for="regFullName">ФИО:</label>
+                    <input type="text" id="regFullName" required>
+                </div>
+                <div class="form-group">
+                    <label for="regEmail">Email:</label>
+                    <input type="email" id="regEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="regPhone">Телефон:</label>
+                    <input type="tel" id="regPhone" required>
+                </div>
+                <div class="form-group">
+                    <label for="regPassword">Пароль:</label>
+                    <input type="password" id="regPassword" required>
+                </div>
+                <div class="form-group">
+                    <label for="regConfirmPassword">Подтверждение пароля:</label>
+                    <input type="password" id="regConfirmPassword" required>
+                </div>
+                <button type="submit" class="btn-submit">Зарегистрироваться</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>&copy; 2024 Мебельный склад. Все права защищены.</p>
+        <p>Контактный телефон: +7 (495) 123-45-67 | Email: info@furniture-warehouse.ru</p>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            checkAuthStatus();
+        });
+
+        function checkAuthStatus() {
+            $.ajax({
+                url: '/api/user/status',
+                type: 'GET',
+                success: function(response) {
+                    if (response.authenticated) {
+                        $('#unauthButtons').hide();
+                        $('#authButtons').show();
+                        $('#userName').text(response.email);
+                    } else {
+                        $('#unauthButtons').show();
+                        $('#authButtons').hide();
+                    }
+                }
+            });
+        }
+
+        function openLoginModal() {
+            $('#loginModal').show();
+        }
+
+        function closeLoginModal() {
+            $('#loginModal').hide();
+            $('#loginForm')[0].reset();
+        }
+
+        function openRegisterModal() {
+            $('#registerModal').show();
+        }
+
+        function closeRegisterModal() {
+            $('#registerModal').hide();
+            $('#registerForm')[0].reset();
+        }
+
+        $('#loginForm').on('submit', function(e) {
+            e.preventDefault();
+            
+            $.ajax({
+                url: '/auth/login',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    username: $('#username').val(),
+                    password: $('#password').val()
+                }),
+                success: function(response) {
+                    window.location.href = '/';
+                },
+                error: function(xhr) {
+                    alert('Неверный email или пароль');
+                }
+            });
+        });
+
+        $('#registerForm').on('submit', function(e) {
+            e.preventDefault();
+            
+            if ($('#regPassword').val() !== $('#regConfirmPassword').val()) {
+                alert('Пароли не совпадают!');
+                return;
+            }
+            
+            $.ajax({
+                url: '/auth/register',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    fullName: $('#regFullName').val(),
+                    email: $('#regEmail').val(),
+                    phone: $('#regPhone').val(),
+                    password: $('#regPassword').val()
+                }),
+                success: function(response) {
+                    alert('Регистрация успешна! Теперь вы можете войти.');
+                    closeRegisterModal();
+                    openLoginModal();
+                },
+                error: function(xhr) {
+                    alert('Ошибка: ' + xhr.responseText);
+                }
+            });
+        });
+
+        function logout() {
+            $.ajax({
+                url: '/auth/logout',
+                type: 'POST',
+                success: function() {
+                    window.location.href = '/';
+                }
+            });
+        }
+
+        function goToCatalog() {
+            window.location.href = '/catalog';
+        }
+
+        $(window).click(function(event) {
+            if ($(event.target).is('#loginModal')) {
+                closeLoginModal();
+            }
+            if ($(event.target).is('#registerModal')) {
+                closeRegisterModal();
+            }
+        });
+    </script>
+</body>
+</html>
